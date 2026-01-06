@@ -20,16 +20,15 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
 
     - name: Build with Gradle
       env:
-        # We need to inject the API key. 
-        # For simplicity in this demo, we might warn the user if it's missing or use a secret.
-        # This setup assumes secrets.MAPS_API_KEY is set in GitHub.
         MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-      run: ./gradlew assembleDebug
+      run: gradle assembleDebug --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v3
