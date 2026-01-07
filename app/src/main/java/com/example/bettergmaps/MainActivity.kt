@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var textLimitValue: TextView
     private lateinit var cardHazardAlert: CardView
     private lateinit var textHazardMessage: TextView
-    private lateinit var btnLayers: FloatingActionButton
+    private lateinit var btnLayers: View
     private lateinit var textSearchBar: TextView
 
     // State
