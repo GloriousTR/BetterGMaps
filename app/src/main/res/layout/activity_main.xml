@@ -1,128 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Google Map Fragment -->
-    <fragment
+    <!-- Full Screen Map -->
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent" />
 
-    <!-- Speedometer Overlay (Top Left) -->
+    <!-- Top Search Bar (Google Style) -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/speedometer_card"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:layout_margin="16dp"
-        app:cardCornerRadius="40dp"
+        app:cardCornerRadius="25dp"
         app:cardElevation="8dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:cardBackgroundColor="#FFFFFF">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-            <TextView
-                android:id="@+id/text_speed_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="km/h"
-                android:textSize="12sp"
-                android:textColor="#666666" />
-        </LinearLayout>
-        
-        <!-- Speed Limit Badge (Bottom Right of Circle) -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="4dp">
-             <androidx.cardview.widget.CardView
-                android:id="@+id/card_limit_badge"
+            <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="#FF0000">
-                <TextView
-                    android:id="@+id/text_limit_value"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="50"
-                    android:textColor="#FFFFFF"
-                    android:textSize="10sp"
-                    android:textStyle="bold"/>
-             </androidx.cardview.widget.CardView>
-        </FrameLayout>
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#757575" />
+
+            <TextView
+                android:id="@+id/search_bar_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Burada arayın"
+                android:textSize="16sp"
+                android:textColor="#757575" />
+
+            <ImageView
+                android:id="@+id/btn_settings"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_launcher"
+                android:clickable="true"
+                android:focusable="true"/>
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Incident Report Button (Bottom Right) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_report"
+    <!-- Speedometer Container (Yandex Style Pill) -->
+    <!-- Positioned Top Right, below Search Bar -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="Report Incident"
-        android:src="@android:drawable/ic_dialog_info"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:orientation="horizontal"
+        android:background="@drawable/bg_speed_container"
+        android:padding="4dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="16dp"
+        android:layout_gravity="top|end"
+        android:gravity="center_vertical"
+        android:elevation="6dp">
 
-    <!-- Hazard Alert View (Initially Hidden) -->
+        <!-- Current Speed -->
+        <TextView
+            android:id="@+id/text_speed_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginHorizontal="12dp" />
+
+        <!-- Speed Limit Circle -->
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_limit_circle">
+            
+            <TextView
+                android:id="@+id/text_limit_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="50"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Hazard Alert Card (Top Center - Hidden by default) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_hazard_alert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:visibility="gone"
-        app:cardCornerRadius="8dp"
-        app:cardBackgroundColor="#FFFF00"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="150dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="#FFCC00"
+        app:cardElevation="10dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            
+            android:gravity="center"
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_dialog_alert"
-                app:tint="#000000"/>
+                android:src="@drawable/ic_launcher" />
 
             <TextView
                 android:id="@+id/text_hazard_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="School Zone Ahead!"
-                android:textColor="#000000"
-                android:textStyle="bold"/>
+                android:text="Dikkat! Kasis"
+                android:textStyle="bold"
+                android:textColor="#000000" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Right Side Buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="16dp">
+
+        <!-- Layers Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_layers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:src="@android:drawable/ic_dialog_map"
+            app:backgroundTint="#FFFFFF"
+            app:fabSize="mini" />
+            
+        <!-- Compass/Center (Optional, Maps usually handles this) -->
+    </LinearLayout>
+
+    <!-- Bottom Report Button -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_report"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:text="+"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:backgroundTint="#2196F3" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

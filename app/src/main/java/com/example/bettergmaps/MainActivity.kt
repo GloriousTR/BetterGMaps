@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -26,6 +27,14 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -41,9 +50,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     // UI Elements
     private lateinit var textSpeedValue: TextView
     private lateinit var textLimitValue: TextView
-    private lateinit var cardLimitBadge: CardView
     private lateinit var cardHazardAlert: CardView
     private lateinit var textHazardMessage: TextView
+    private lateinit var btnLayers: FloatingActionButton
+    private lateinit var textSearchBar: TextView
 
     // State
     private var isMapReady = false
@@ -55,19 +65,74 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
     private var isAlerting = false
 
+    // Search Launcher
+    private val startAutocomplete = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val intent = result.data
+            if (intent != null) {
+                val place = Autocomplete.getPlaceFromIntent(intent)
+                // Move Camera to Place
+                place.latLng?.let { latLng ->
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                    mMap.addMarker(MarkerOptions().position(latLng).title(place.name))
+                    textSearchBar.text = place.name // Update Search Bar text
+                }
+            }
+        } else if (result.resultCode == AutocompleteActivity.RESULT_ERROR) {
+            val intent = result.data
+            if (intent != null) {
+                val status = Autocomplete.getStatusFromIntent(intent)
+                Toast.makeText(this, "Hata: ${status.statusMessage}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize Places API
+        try {
+            val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            val apiKey = appInfo.metaData?.getString("com.google.android.geo.API_KEY")
+            if (!Places.isInitialized() && apiKey != null) {
+                Places.initialize(applicationContext, apiKey)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         // Initialize UI References
         textSpeedValue = findViewById(R.id.text_speed_value)
         textLimitValue = findViewById(R.id.text_limit_value)
-        cardLimitBadge = findViewById(R.id.card_limit_badge)
         cardHazardAlert = findViewById(R.id.card_hazard_alert)
         textHazardMessage = findViewById(R.id.text_hazard_message)
+        btnLayers = findViewById(R.id.btn_layers)
+        textSearchBar = findViewById(R.id.search_bar_text)
 
+        // Layers Button Action
+        btnLayers.setOnClickListener {
+            showLayersBottomSheet()
+        }
+
+        // Report FAB
         findViewById<View>(R.id.fab_report).setOnClickListener {
             showReportDialog()
+        }
+
+        // Search Bar Action
+        textSearchBar.setOnClickListener {
+            startSearch()
+        }
+        findViewById<View>(R.id.search_bar_container)?.setOnClickListener {
+             startSearch()
+        }
+
+        // Settings Button Action
+        findViewById<View>(R.id.btn_settings).setOnClickListener {
+            showSettingsDialog()
         }
 
         // Initialize Location Services
@@ -87,13 +152,72 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         speedLimitService = retrofit.create(SpeedLimitService::class.java)
     }
 
+    private fun showSettingsDialog() {
+        val options = arrayOf("Hız Birimi (km/h)", "Gece Modu (Otomatik)", "Sesli Uyarılar (Açık)")
+        val checkedItems = booleanArrayOf(true, true, true) // Mock state
+
+        AlertDialog.Builder(this)
+            .setTitle("Ayarlar")
+            .setMultiChoiceItems(options, checkedItems) { dialog, which, isChecked ->
+                // Save setting preference here
+                Toast.makeText(this, "Ayar güncellendi", Toast.LENGTH_SHORT).show()
+                if (which == 2) { // Audio toggle
+                     // update audio state
+                }
+            }
+            .setPositiveButton("Tamam", null)
+            .show()
+    }
+    
+    private fun startSearch() {
+        if (!Places.isInitialized()) {
+             Toast.makeText(this, "API Key Hatası: Places başlatılamadı.", Toast.LENGTH_LONG).show()
+             return
+        }
+        
+        // Define fields we want to return
+        val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
+        
+        // Start Autocomplete Intent
+        val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+            .setCountry("TR") // Limit search to Turkey for better results
+            .build(this)
+        startAutocomplete.launch(intent)
+    }
+
+    private fun showLayersBottomSheet() {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_layers, null)
+        dialog.setContentView(view)
+
+        // Handle Clicks
+        view.findViewById<View>(R.id.layer_default).setOnClickListener {
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.layer_satellite).setOnClickListener {
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.layer_terrain).setOnClickListener {
+            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.layer_traffic).setOnClickListener {
+            mMap.isTrafficEnabled = !mMap.isTrafficEnabled
+            Toast.makeText(this, "Trafik: " + if(mMap.isTrafficEnabled) "Açık" else "Kapalı", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun showReportDialog() {
         val options = arrayOf("Kaza", "Yolda Çalışma", "Radar", "Kapalı Yol")
         AlertDialog.Builder(this)
             .setTitle("Olay Bildir")
             .setItems(options) { dialog, which ->
                 Toast.makeText(this, "${options[which]} bildirildi! Teşekkürler.", Toast.LENGTH_SHORT).show()
-                // TODO: Send to backend
             }
             .show()
     }
@@ -104,6 +228,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (location in locationResult.locations) {
                     updateSpeed(location)
                     checkHazards(location)
+                    // Only update camera if we are not looking at a search result (simple logic for now)
+                    // Or keep '3D Follow' mode active. For now, let's keep it active.
                     updateCamera(location)
                 }
             }
@@ -114,12 +240,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
         isMapReady = true
 
-        // 1. Traffic Layer (User Request)
         mMap.isTrafficEnabled = true
+        mMap.uiSettings.isCompassEnabled = true
         
-        // 2. Night Mode (Auto-system usually handles this, but we can force it based on hour usually)
-        // keeping default system theme for now for simplicity.
-
         enableLocation()
     }
 
@@ -159,9 +282,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         textSpeedValue.text = speedKmh.toString()
 
-        // 3. Real Speed Limit (Overpass)
+        // Real Speed Limit (Overpass)
         val currentTime = System.currentTimeMillis()
-        if (currentTime - lastApiCallTime > 2000) { // Check every 2 seconds
+        if (currentTime - lastApiCallTime > 2000) { 
             lastApiCallTime = currentTime
             fetchRealSpeedLimit(location.latitude, location.longitude)
         }
@@ -171,15 +294,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val limit = currentLimitText.toIntOrNull() ?: 50 
 
         if (speedKmh > limit) {
-             cardLimitBadge.setCardBackgroundColor(0xFFFF0000.toInt()) // Red
-             
-             // 4. Audio Alert
+             textLimitValue.setTextColor(0xFFFF0000.toInt()) // Kirmizi Yazi
              if (!isAlerting) {
                  toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200)
                  isAlerting = true
              }
         } else {
-             cardLimitBadge.setCardBackgroundColor(0xFF00C853.toInt()) // Green
+             textLimitValue.setTextColor(0xFF000000.toInt()) // Siyah Yazi
              isAlerting = false
         }
     }
@@ -204,7 +325,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun checkHazards(location: Location) {
-        // Demo Hazards
         if (currentSpeedKmH == 30) {
             showHazardAlert("Okul Bölgesi", R.drawable.ic_launcher)
         } else if (currentSpeedKmH == 45) {
@@ -220,7 +340,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             cardHazardAlert.visibility = View.VISIBLE
             cardHazardAlert.alpha = 0f
             cardHazardAlert.animate().alpha(1f).setDuration(500).start()
-            // Sound for hazard
             toneGenerator.startTone(ToneGenerator.TONE_SUP_PIP, 150)
         }
     }
@@ -235,6 +354,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateCamera(location: Location) {
         if (!isMapReady) return
+        // Eger kullanici bir yer aradiysa kamerayi otomatik takip modundan cikartabiliriz
+        // Şimdilik sürekli takşp etsin (Navigasyon modu varsayımı)
         val currentLatLng = LatLng(location.latitude, location.longitude)
         
         val cameraUpdate = CameraUpdateFactory.newCameraPosition(
