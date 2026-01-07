@@ -294,7 +294,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
              startActivity(intent)
              dialog.dismiss()
         }
-
+        
+        dialog.show()
+    }
     private fun showReportDialog() {
         val options = arrayOf("Kaza", "Yolda Çalışma", "Radar", "Kapalı Yol")
         AlertDialog.Builder(this)
