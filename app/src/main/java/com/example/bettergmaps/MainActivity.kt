@@ -335,7 +335,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // Dynamic Layout for better customization
         val layout = android.widget.LinearLayout(this)
         layout.orientation = android.widget.LinearLayout.VERTICAL
-        layout.padding = 40
+        layout.setPadding(40, 40, 40, 40)
         layout.setBackgroundColor(0xFFFFFFFF.toInt())
 
         val title = TextView(this)
