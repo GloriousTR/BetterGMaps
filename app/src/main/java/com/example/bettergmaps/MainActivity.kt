@@ -188,6 +188,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
          // we will open the Autocomplete overlay to let user confirm.
          startSearch() 
     }
+    private fun showSettingsDialog() {
         val options = arrayOf("Hız Birimi (km/h)", "Gece Modu (Otomatik)", "Sesli Uyarılar (Açık)")
         val checkedItems = booleanArrayOf(true, true, true) // Mock state
 
