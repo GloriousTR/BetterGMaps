@@ -383,13 +383,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
              if (home != null) navigateTo(home)
              else Toast.makeText(this, "Ev adresi kayıtlı değil. Haritaya uzun basıp ayarlayın.", Toast.LENGTH_LONG).show()
         }
-        // Work Chip (reusing Restaurant ID for now or assuming user edits XML? No, XML has btn_chip_restaurant)
-        // Wait, user asked for Home and Work buttons. ID btn_chip_home exists. 
-        // I should probably hijack one of the existing buttons or rely on user knowing "Ev" is the first one.
-        // Let's stick to the existing XML layout: Home, Restaurant, Coffee, Gas.
-        
-        findViewById<View>(R.id.btn_chip_restaurant).setOnClickListener { performPlaceSearch("Restoran") }
-        findViewById<View>(R.id.btn_chip_coffee).setOnClickListener { performPlaceSearch("Kahve") }
+        // Work Chip
+        findViewById<View>(R.id.btn_chip_work).setOnClickListener {
+             val work = getPlace(KEY_WORK)
+             if (work != null) navigateTo(work)
+             else Toast.makeText(this, "İş adresi kayıtlı değil. Haritaya uzun basıp ayarlayın.", Toast.LENGTH_LONG).show()
+        }
+
         findViewById<View>(R.id.btn_chip_gas).setOnClickListener { performPlaceSearch("Benzin İstasyonu") }
 
         // 2. Bottom Navigation
