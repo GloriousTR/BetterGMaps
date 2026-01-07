@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // State
     private var isMapReady = false
+    private var isFirstLocation = true
     private var currentSpeedKmH = 0
     private var lastApiCallTime = 0L
 
@@ -156,18 +157,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<View>(R.id.btn_chip_home).setOnClickListener {
              val home = getPlace(KEY_HOME)
              if (home != null) navigateTo(home)
-             else Toast.makeText(this, "Ev adresi kayıtlı değil. Haritaya uzun basıp ayarlayın.", Toast.LENGTH_LONG).show()
+             else Toast.makeText(this, "Ev kayıtlı değil. Haritaya basılı tutup ekleyin.", Toast.LENGTH_SHORT).show()
         }
-        // Work logic mapped to Restaurant button temporarily or I should add a specific Work button?
-        // User asked for "Ev ve İş olarak 2 buton". 
-        // I will map the second button (Restoranlar) to 'Work' for now to satisfy the request without changing layout XML again,
-        // OR better: I'll just keep Restoranlar as is and let User use 'Saved' menu for work, 
-        // OR warn user I am changing 'Restoranlar' to 'Work' in logic.
-        // Actually, user said "Ev ve İş olarak 2 buton bulunabilir". I should probably update XML to have specific Home/Work buttons.
-        // For this step, I will stick to logic updates. I will map Home Chip -> Home, Saved Nav -> Saved List (Home+Work).
         
-        findViewById<View>(R.id.btn_chip_restaurant).setOnClickListener { performPlaceSearch("Restoran") }
-        findViewById<View>(R.id.btn_chip_coffee).setOnClickListener { performPlaceSearch("Kahve") }
+        findViewById<View>(R.id.btn_chip_work).setOnClickListener {
+             val work = getPlace(KEY_WORK)
+             if (work != null) navigateTo(work)
+             else Toast.makeText(this, "İş kayıtlı değil. Haritaya basılı tutup ekleyin.", Toast.LENGTH_SHORT).show()
+        }
+        
         findViewById<View>(R.id.btn_chip_gas).setOnClickListener { performPlaceSearch("Benzin İstasyonu") }
 
         // 2. Bottom Navigation
@@ -519,19 +517,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateCamera(location: Location) {
         if (!isMapReady) return
-        // Eger kullanici bir yer aradiysa kamerayi otomatik takip modundan cikartabiliriz
-        // Şimdilik sürekli takşp etsin (Navigasyon modu varsayımı)
-        val currentLatLng = LatLng(location.latitude, location.longitude)
         
-        val cameraUpdate = CameraUpdateFactory.newCameraPosition(
-            com.google.android.gms.maps.model.CameraPosition.Builder()
-                .target(currentLatLng)
-                .zoom(18f)
-                .tilt(45f)
-                .bearing(location.bearing)
-                .build()
-        )
-        mMap.animateCamera(cameraUpdate)
+        // Sadece ilk konum alındığında kamerayı odakla. 
+        // Sonrasında kullanıcı özgürce gezebilmeli.
+        if (isFirstLocation) {
+            isFirstLocation = false
+            val currentLatLng = LatLng(location.latitude, location.longitude)
+            
+            val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+                com.google.android.gms.maps.model.CameraPosition.Builder()
+                    .target(currentLatLng)
+                    .zoom(18f)
+                    .tilt(45f)
+                    .bearing(location.bearing)
+                    .build()
+            )
+            mMap.animateCamera(cameraUpdate)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
