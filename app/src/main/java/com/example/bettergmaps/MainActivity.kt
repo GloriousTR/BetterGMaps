@@ -92,8 +92,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Apply Theme
+        val themePref = getSharedPreferences("BetterGMapsPrefs", MODE_PRIVATE).getInt("theme_pref", 0)
+        when (themePref) {
+            0 -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            1 -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO)
+            2 -> androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES)
+        }
+        
         setContentView(R.layout.activity_main)
-
+        
         // Initialize Places API
         try {
             val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
@@ -230,11 +239,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             dialog.dismiss()
         }
         view.findViewById<View>(R.id.layer_satellite).setOnClickListener {
-            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            mMap.isBuildingsEnabled = false
             dialog.dismiss()
         }
         view.findViewById<View>(R.id.layer_terrain).setOnClickListener {
-            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            // User wants Satellite + 3D Buildings
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            mMap.isBuildingsEnabled = true
+            
+            // Tilt camera to show 3D effect
+            val currentCameraPosition = mMap.cameraPosition
+            val newCameraPosition = com.google.android.gms.maps.model.CameraPosition.Builder(currentCameraPosition)
+                .tilt(45f) // Tilt to see buildings
+                .zoom(18f.coerceAtLeast(currentCameraPosition.zoom)) // Zoom in if too far out
+                .build()
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCameraPosition))
+            
             dialog.dismiss()
         }
         view.findViewById<View>(R.id.layer_traffic).setOnClickListener {
@@ -243,8 +264,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             dialog.dismiss()
         }
 
-        dialog.show()
-    }
+        view.findViewById<View>(R.id.layer_transit).setOnClickListener {
+             val target = mMap.cameraPosition.target
+             val uri = android.net.Uri.parse("citymapper://map?coord=${target.latitude},${target.longitude}")
+             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+             
+             // Try to launch Citymapper
+             if (intent.resolveActivity(packageManager) != null) {
+                 startActivity(intent)
+             } else {
+                 // Fallback: Open Play Store for Citymapper
+                 try {
+                     startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, 
+                         android.net.Uri.parse("market://details?id=com.citymapper.app.release")))
+                 } catch (e: Exception) {
+                     startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, 
+                         android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.citymapper.app.release")))
+                 }
+                 Toast.makeText(this, "Citymapper yüklü değil, mağazaya yönlendiriliyor...", Toast.LENGTH_LONG).show()
+             }
+             dialog.dismiss()
+        }
+        
+        view.findViewById<View>(R.id.layer_street_view).setOnClickListener {
+             val target = mMap.cameraPosition.target
+             val intent = android.content.Intent(this, StreetViewActivity::class.java)
+             intent.putExtra("LAT", target.latitude)
+             intent.putExtra("LNG", target.longitude)
+             startActivity(intent)
+             dialog.dismiss()
+        }
 
     private fun showReportDialog() {
         val options = arrayOf("Kaza", "Yolda Çalışma", "Radar", "Kapalı Yol")

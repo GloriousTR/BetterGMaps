@@ -88,7 +88,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Arazi"
+                android:text="Hibrit"
                 android:textColor="#9AA0A6"
                 android:layout_marginTop="4dp"
                 android:textSize="12sp"/>
@@ -140,8 +140,9 @@
                 android:textSize="12sp"/>
         </LinearLayout>
 
-        <!-- Transit (Mock) -->
+        <!-- Transit -->
         <LinearLayout
+            android:id="@+id/layer_transit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -164,8 +165,9 @@
                 android:textSize="12sp"/>
         </LinearLayout>
 
-        <!-- Street View (Mock) -->
+        <!-- Street View -->
         <LinearLayout
+            android:id="@+id/layer_street_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
