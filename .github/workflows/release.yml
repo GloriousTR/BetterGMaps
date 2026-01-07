@@ -1,0 +1,70 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build APK (Debug)
+        env:
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          CI_VERSION_NAME: 1.0.0.${{ github.run_number }}
+        run: |
+          ./gradlew clean assembleDebug -x lint
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          echo "Listing build outputs for debugging:"
+          find app/build/outputs/apk -maxdepth 4 -type d || true
+          
+          # Find any APK recursively (taking the first one found)
+          APK_PATH=$(find app/build/outputs/apk -name "*.apk" ! -name "*-unsigned.apk" | head -n 1)
+          
+          echo "Found APK: $APK_PATH"
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "ERROR: APK not found in app/build/outputs/apk!"
+            exit 1
+          fi
+          
+          # Rename to BetterGMaps_v1.0.0.X.apk
+          cp "$APK_PATH" out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0.${{ github.run_number }}
+          name: "BetterGMaps v1.0.0.${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: |
+            out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterGMaps_v1.0.0.${{ github.run_number }}
+          path: out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
