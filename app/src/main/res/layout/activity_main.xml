@@ -80,6 +80,7 @@
                 android:orientation="horizontal">
 
                 <Button
+                    android:id="@+id/btn_chip_home"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="Ev"
@@ -91,6 +92,7 @@
                     android:textAllCaps="false"/>
 
                 <Button
+                    android:id="@+id/btn_chip_restaurant"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="Restoranlar"
@@ -101,6 +103,7 @@
                     android:textAllCaps="false"/>
 
                 <Button
+                    android:id="@+id/btn_chip_coffee"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="Kahve"
@@ -111,6 +114,7 @@
                     android:textAllCaps="false"/>
                 
                 <Button
+                    android:id="@+id/btn_chip_gas"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="Benzin"
@@ -123,14 +127,29 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <!-- Speedometer (Fixed Position: Top Right, Just below the header area) -->
+    <!-- Layers Button (Positioned: Top Right, between Search and Speedometer) -->
+    <ImageView
+        android:id="@+id/btn_layers"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="85dp"
+        android:layout_marginEnd="16dp"
+        android:src="@android:drawable/ic_dialog_map"
+        android:background="@drawable/bg_speed_container"
+        android:padding="8dp"
+        android:elevation="6dp" 
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- Speedometer (Positioned: Just below Layers) -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/bg_speed_container"
         android:padding="4dp"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="135dp"
         android:layout_marginEnd="16dp"
         android:layout_gravity="top|end"
         android:gravity="center_vertical"
@@ -168,7 +187,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="190dp"
+        android:layout_marginTop="200dp"
         app:cardCornerRadius="20dp"
         app:cardBackgroundColor="#FFCC00"
         app:cardElevation="10dp"
@@ -194,20 +213,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Layers Button (Mid Right) -->
-    <ImageView
-        android:id="@+id/btn_layers"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_vertical|end"
-        android:layout_marginEnd="16dp"
-        android:src="@android:drawable/ic_dialog_map"
-        android:background="@drawable/bg_speed_container"
-        android:padding="10dp"
-        android:elevation="6dp" 
-        android:clickable="true"
-        android:focusable="true"/>
-
     <!-- Bottom Navigation Bar (Mock using LinearLayout for simplicity without menu resources) -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -220,11 +225,14 @@
 
         <!-- Explore -->
         <LinearLayout
+            android:id="@+id/nav_explore"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -240,11 +248,14 @@
 
         <!-- Saved -->
         <LinearLayout
+            android:id="@+id/nav_saved"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"

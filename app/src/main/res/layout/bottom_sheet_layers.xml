@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#FFFFFF"
-    android:padding="20dp">
-
-    <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:background="#E0E0E0"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp"/>
+    android:padding="20dp"
+    android:background="#202124"> <!-- Google Dark Grey -->
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Harita türü"
+        android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -25,8 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginBottom="24dp">
+        android:gravity="center_horizontal">
 
         <!-- Default -->
         <LinearLayout
@@ -39,13 +33,17 @@
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@android:drawable/ic_menu_mapmode"
-                android:background="@drawable/bg_speed_container"/>
+                android:src="@android:drawable/ic_dialog_map"
+                app:tint="#8AB4F8" 
+                android:background="@drawable/bg_speed_container"
+                android:padding="12dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Varsayılan"
-                android:layout_marginTop="8dp"/>
+                android:textColor="#8AB4F8"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
         </LinearLayout>
 
         <!-- Satellite -->
@@ -59,15 +57,19 @@
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@android:drawable/star_on"
-                android:background="@drawable/bg_speed_container"/>
+                android:src="@android:drawable/ic_menu_mapmode"
+                app:tint="#9AA0A6"
+                android:background="@drawable/bg_speed_container"
+                android:padding="12dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Uydu"
-                android:layout_marginTop="8dp"/>
+                android:textColor="#9AA0A6"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
         </LinearLayout>
-        
+
         <!-- Terrain -->
         <LinearLayout
             android:id="@+id/layer_terrain"
@@ -79,40 +81,113 @@
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:src="@android:drawable/ic_menu_mylocation"
-                android:background="@drawable/bg_speed_container"/>
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                app:tint="#9AA0A6"
+                android:background="@drawable/bg_speed_container"
+                android:padding="12dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Arazi"
-                android:layout_marginTop="8dp"/>
+                android:textColor="#9AA0A6"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
         </LinearLayout>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#3C4043"
+        android:layout_marginVertical="20dp"/>
+
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Harita ayrıntıları"
+        android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
-    <LinearLayout
-        android:id="@+id/layer_traffic"
-        android:layout_width="80dp"
+    <GridLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@android:drawable/ic_menu_directions"
-            android:background="@drawable/bg_speed_container"/>
-        <TextView
-            android:layout_width="wrap_content"
+        android:columnCount="4">
+
+        <!-- Traffic -->
+        <LinearLayout
+            android:id="@+id/layer_traffic"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Trafik"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_directions"
+                app:tint="#81C995" 
+                android:background="@drawable/bg_speed_container"
+                android:padding="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trafik"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <!-- Transit (Mock) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_more"
+                app:tint="#9AA0A6"
+                android:background="@drawable/bg_speed_container"
+                android:padding="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Toplu Taşıma"
+                android:textColor="#9AA0A6"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <!-- Street View (Mock) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_zoom"
+                app:tint="#9AA0A6"
+                android:background="@drawable/bg_speed_container"
+                android:padding="8dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Street View"
+                android:textColor="#9AA0A6"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+    </GridLayout>
 
 </LinearLayout>
