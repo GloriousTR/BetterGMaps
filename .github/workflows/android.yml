@@ -28,7 +28,10 @@ jobs:
     - name: Build with Gradle
       env:
         MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-      run: gradle assembleDebug --stacktrace -x test -x lint
+      run: |
+        gradle wrapper
+        chmod +x gradlew
+        ./gradlew assembleDebug --stacktrace -x test -x lint
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
