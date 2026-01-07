@@ -126,34 +126,72 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         textSpeedValue.text = speedKmh.toString()
 
-        // Mock Speed Limit Logic
-        val limit = getMockSpeedLimit(location)
+        // 1. SPEED LIMIT LOGIC
+        // In a real app, we would query OpenStreetMap (Overpass API) here based on Lat/Lng.
+        // For this demo, we simulate limits based on speed to show the UI change.
+        // If driving fast (>80), assume highway (90 limit). If slow, assume city (50).
+        val limit = if (speedKmh > 80) 120 else 50
+        
         textLimitValue.text = limit.toString()
 
+        // Visual Warning: If speeding, turn boundary RED and pulse
         if (speedKmh > limit) {
-            cardLimitBadge.setCardBackgroundColor(0xFFFF0000.toInt()) // Red
+             cardLimitBadge.setCardBackgroundColor(0xFFFF0000.toInt()) // Red Warning
+             // Optional: Play beep sound here
         } else {
-            cardLimitBadge.setCardBackgroundColor(0xFF00FF00.toInt()) // Green (or Grey)
+             cardLimitBadge.setCardBackgroundColor(0xFF00C853.toInt()) // Green Safe
         }
     }
 
-    private fun getMockSpeedLimit(location: Location): Int {
-        // In real app, query OSM here.
-        // For demo: default 50, highway 90.
-        return 50
+    private fun checkHazards(location: Location) {
+        // 2. HAZARD LOGIC (Mock Geofencing)
+        // We simulate a hazard if the user coordinates match a "Fake Hazard Zone"
+        // or effectively, we randomly trigger it for DEMO purposes every 60 seconds
+        // OR simpler: specific coordinate box around Istanbul/Ankara for testing.
+        
+        // For Demo: If speed is exactly 30 (just to test), show "School Zone"
+        if (currentSpeedKmH == 30) {
+            showHazardAlert("School Zone", R.drawable.ic_launcher) // TODO: Use real icon
+        } else if (currentSpeedKmH == 45) {
+            showHazardAlert("Speed Bump Ahead", R.drawable.ic_launcher)
+        } else {
+            hideHazardAlert()
+        }
+    }
+    
+    // Helper to animate alerting
+    private fun showHazardAlert(message: String, iconRes: Int) {
+        if (cardHazardAlert.visibility != View.VISIBLE) {
+            textHazardMessage.text = message
+            cardHazardAlert.visibility = View.VISIBLE
+            cardHazardAlert.alpha = 0f
+            cardHazardAlert.animate().alpha(1f).setDuration(500).start()
+        }
     }
 
-    private fun checkHazards(location: Location) {
-        // Mock Hazard: If lat > X show hazard
-        // TODO: Real Geofencing logic
+    private fun hideHazardAlert() {
+        if (cardHazardAlert.visibility == View.VISIBLE) {
+            cardHazardAlert.animate().alpha(0f).setDuration(500).withEndAction {
+                cardHazardAlert.visibility = View.GONE
+            }.start()
+        }
     }
 
     private fun updateCamera(location: Location) {
         if (!isMapReady) return
         val currentLatLng = LatLng(location.latitude, location.longitude)
-        // Camera follows user, tilted for 3D navigation view
-        // val cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng, 17f)
-        // mMap.animateCamera(cameraUpdate)
+        
+        // Google Maps Navigation Style Camera
+        // Tilt: 45 degrees, Zoom: 18 (Close up)
+        val cameraUpdate = CameraUpdateFactory.newCameraPosition(
+            com.google.android.gms.maps.model.CameraPosition.Builder()
+                .target(currentLatLng)
+                .zoom(18f)
+                .tilt(45f) // 3D Effect
+                .bearing(location.bearing) // Rotate with user
+                .build()
+        )
+        mMap.animateCamera(cameraUpdate)
     }
 
     override fun onRequestPermissionsResult(
