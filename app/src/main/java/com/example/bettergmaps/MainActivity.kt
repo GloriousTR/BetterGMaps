@@ -1,5 +1,6 @@
 package com.example.bettergmaps
 
+import com.example.bettergmaps.R
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
