@@ -12,7 +12,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = System.getenv("CI_VERSION_NAME") ?: "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -47,8 +47,9 @@ dependencies {
     
     // Google Maps SDK
     implementation("com.google.android.gms:play-services-maps:18.2.0")
-    implementation("com.google.android.gms:play-services-location:21.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
     
     // Network (Retrofit for OSM/Overpass)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

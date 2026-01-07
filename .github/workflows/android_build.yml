@@ -1,8 +1,12 @@
-name: Build Android APK
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      manual_version:
+        description: 'Manual Version (e.g. 1.1). Leave empty for Auto specific.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -30,10 +34,41 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Calculate Version Name
+        id: version_calc
+        env:
+          # CHANGE THIS OFFSET TO RESET YOUR COUNTER
+          # Example: If current run is 15, set OFFSET to 14 to start at 1.1
+          # User's last build was 15. Next is 16. 16 - 15 = 1 -> v1.1
+          VERSION_OFFSET: 15
+          MANUAL_VER: ${{ github.event.inputs.manual_version }}
+        run: |
+          # Priority: Manual Input > Auto Calculation
+          
+          if [ -n "$MANUAL_VER" ]; then
+             echo "Manual version detected: $MANUAL_VER"
+             echo "CI_VERSION_NAME=$MANUAL_VER" >> $GITHUB_ENV
+             exit 0
+          fi
+          
+          # Auto Calculation Logic
+          RUN_NUM=${{ github.run_number }}
+          OFFSET=${VERSION_OFFSET}
+          
+          if [ $OFFSET -ge $RUN_NUM ]; then
+              MINOR=$RUN_NUM
+          else
+              MINOR=$((RUN_NUM - OFFSET))
+          fi
+          
+          FINAL_VERSION="1.$MINOR"
+          echo "CI_VERSION_NAME=$FINAL_VERSION" >> $GITHUB_ENV
+          echo "Computed Version: $FINAL_VERSION"
+
       - name: Build APK (Debug)
         env:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-          CI_VERSION_NAME: 1.0.0.${{ github.run_number }}
+          # CI_VERSION_NAME is now set globally in the previous step
         run: |
           ./gradlew clean assembleDebug -x lint
 
@@ -53,23 +88,23 @@ jobs:
             exit 1
           fi
           
-          # Rename to BetterGMaps_v1.0.0.X.apk
-          cp "$APK_PATH" out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
+          # Rename to BetterGMaps_v1.X.apk
+          cp "$APK_PATH" out/BetterGMaps_v${{ env.CI_VERSION_NAME }}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0.${{ github.run_number }}
-          name: "BetterGMaps v1.0.0.${{ github.run_number }}"
+          tag_name: v${{ env.CI_VERSION_NAME }}
+          name: "BetterGMaps v${{ env.CI_VERSION_NAME }}"
           draft: false
           prerelease: false
           files: |
-            out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
+            out/BetterGMaps_v${{ env.CI_VERSION_NAME }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BetterGMaps_v1.0.0.${{ github.run_number }}
-          path: out/BetterGMaps_v1.0.0.${{ github.run_number }}.apk
+          name: BetterGMaps_v${{ env.CI_VERSION_NAME }}
+          path: out/BetterGMaps_v${{ env.CI_VERSION_NAME }}.apk

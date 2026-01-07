@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <!-- POI Name -->
+    <TextView
+        android:id="@+id/poi_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="İşletme Adı"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- POI Coordinates / Address (Mock) -->
+    <TextView
+        android:id="@+id/poi_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Adres bilgisi alınıyor..."
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/poi_rating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" 
+        android:textSize="14sp"
+        android:textColor="#F9A825"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+        
+    <TextView
+        android:id="@+id/poi_open_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#4CAF50"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_directions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Yol Tarifi"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_close_poi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kapat"
+            android:backgroundTint="#EF5350"
+            android:textColor="#FFFFFF"/>
+    </LinearLayout>
+</LinearLayout>

@@ -21,6 +21,28 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
+            
+    <queries>
+        <!-- Transit apps -->
+        <package android:name="com.citymapper.app.release" />
+        <package android:name="com.tranzmate" /> <!-- Moovit -->
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="ru.yandex.yandexnavi" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+    </queries>
+
+        <activity
+            android:name=".StreetViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BetterGMaps"/>
+            
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BetterGMaps"/>
 
         <activity
             android:name=".MainActivity"
