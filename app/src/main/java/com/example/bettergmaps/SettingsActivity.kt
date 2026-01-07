@@ -145,12 +145,20 @@ class SettingsActivity : AppCompatActivity() {
     private fun showUnitSelectionDialog() {
         val units = arrayOf("Otomatik", "Kilometre (km)", "Mil (mi)")
         val currentUnit = prefs.getString("unit_pref", "auto")
-        val currentIndex = when(currentUnit) { "km" -> 1 "mi" -> 2 else -> 0 }
+        val currentIndex = when(currentUnit) {
+            "km" -> 1
+            "mi" -> 2
+            else -> 0
+        }
 
         AlertDialog.Builder(this)
             .setTitle("Mesafe Birimleri")
             .setSingleChoiceItems(units, currentIndex) { dialog, which ->
-                val newValue = when(which) { 1 -> "km" 2 -> "mi" else -> "auto" }
+                val newValue = when(which) {
+                    1 -> "km"
+                    2 -> "mi"
+                    else -> "auto"
+                }
                 prefs.edit().putString("unit_pref", newValue).apply()
                 updateUnitText(newValue)
                 dialog.dismiss()
