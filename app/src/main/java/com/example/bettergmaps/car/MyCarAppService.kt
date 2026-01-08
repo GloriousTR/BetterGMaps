@@ -2,11 +2,8 @@ package com.example.bettergmaps.car
 
 import androidx.car.app.CarAppService
 import androidx.car.app.Session
+import androidx.car.app.SessionInfo
 import androidx.car.app.validation.HostValidator
-
-import androidx.car.app.SessionInfo
-
-import androidx.car.app.SessionInfo
 
 class MyCarAppService : CarAppService() {
     override fun createHostValidator(): HostValidator {
