@@ -121,6 +121,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             e.printStackTrace()
         }
 
+        // Initialize Speed Limit Service (Retrofit)
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://overpass-api.de/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        speedLimitService = retrofit.create(SpeedLimitService::class.java)
+
         // Initialize UI References
         textSpeedValue = findViewById(R.id.text_speed_value)
         textLimitValue = findViewById(R.id.text_limit_value)
