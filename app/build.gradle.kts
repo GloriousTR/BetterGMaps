@@ -20,6 +20,15 @@ android {
         val mapsKey = System.getenv("MAPS_API_KEY") ?: "YOUR_API_KEY_HERE"
         manifestPlaceholders["MAPS_API_KEY"] = mapsKey
     }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 
     signingConfigs {
         getByName("debug") {
@@ -56,6 +65,9 @@ dependencies {
     // Network (Retrofit for OSM/Overpass)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    
+    // Android Auto
+    implementation("androidx.car.app:app:1.4.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

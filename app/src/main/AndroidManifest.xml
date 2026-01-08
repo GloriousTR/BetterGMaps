@@ -44,6 +44,18 @@
             android:exported="false"
             android:theme="@style/Theme.BetterGMaps"/>
 
+        <service
+            android:name=".car.MyCarAppService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"> 
