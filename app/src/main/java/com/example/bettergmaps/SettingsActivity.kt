@@ -9,6 +9,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import android.widget.Button
+import android.widget.Toast
+import android.view.View
 
 class SettingsActivity : AppCompatActivity() {
 
