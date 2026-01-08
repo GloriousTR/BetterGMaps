@@ -67,7 +67,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     
     // Android Auto
-    implementation("androidx.car.app:app:1.4.0")
+    implementation("androidx.car.app:app:1.2.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
