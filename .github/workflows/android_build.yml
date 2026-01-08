@@ -39,8 +39,8 @@ jobs:
         env:
           # CHANGE THIS OFFSET TO RESET YOUR COUNTER
           # Example: If current run is 15, set OFFSET to 14 to start at 1.1
-          # User requested 25
-          VERSION_OFFSET: 25
+          # User requested 28
+          VERSION_OFFSET: 28
           MANUAL_VER: ${{ github.event.inputs.manual_version }}
         run: |
           # Priority: Manual Input > Auto Calculation

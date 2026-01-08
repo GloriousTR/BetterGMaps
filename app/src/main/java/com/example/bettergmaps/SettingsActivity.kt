@@ -98,9 +98,24 @@ class SettingsActivity : AppCompatActivity() {
         
         // --- Location History ---
         findViewById<android.view.View>(R.id.btn_location_history).setOnClickListener {
-             val uri = android.net.Uri.parse("https://timeline.google.com")
-             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
-             startActivity(intent)
+             val history = HistoryManager.getHistory(this)
+             if (history.isEmpty()) {
+                 android.widget.Toast.makeText(this, "Henüz geçmiş kaydı yok.", android.widget.Toast.LENGTH_SHORT).show()
+             } else {
+                 val items = history.map { "${it.name}\n${it.date}" }.toTypedArray()
+                 androidx.appcompat.app.AlertDialog.Builder(this)
+                     .setTitle("Son Gidilenler")
+                     .setItems(items) { _, which ->
+                         // Optional: Navigate to selected history item?
+                         // For now just show it.
+                     }
+                     .setPositiveButton("Tamam", null)
+                     .setNeutralButton("Temizle") { _, _ ->
+                         HistoryManager.clearHistory(this)
+                         android.widget.Toast.makeText(this, "Geçmiş temizlendi.", android.widget.Toast.LENGTH_SHORT).show()
+                     }
+                     .show()
+             }
         }
     }
     
@@ -112,7 +127,7 @@ class SettingsActivity : AppCompatActivity() {
                 val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
                 updateAuthUI(account)
             } catch (e: com.google.android.gms.common.api.ApiException) {
-                android.widget.Toast.makeText(this, "Giriş Başarısız: ${e.statusCode}", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(this, "Giriş Başarısız: Kod ${e.statusCode}\n${e.message}", android.widget.Toast.LENGTH_LONG).show()
                 updateAuthUI(null)
             }
         }

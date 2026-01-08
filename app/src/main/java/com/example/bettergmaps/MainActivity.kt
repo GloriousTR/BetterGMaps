@@ -49,6 +49,8 @@ import com.google.android.libraries.places.api.net.PlacesClient
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var speedLimitService: SpeedLimitService
+    private lateinit var routesService: RoutesApiService
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private lateinit var placesClient: PlacesClient
@@ -170,6 +172,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+        // Initialize Routes API Service
+        val routesRetrofit = Retrofit.Builder()
+            .baseUrl("https://routes.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        routesService = routesRetrofit.create(RoutesApiService::class.java)
+
         // --- BINDINGS FOR NEW UI ---
         // 1. Chips
         findViewById<View>(R.id.btn_chip_home).setOnClickListener {
@@ -188,7 +197,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 2. Bottom Navigation
         findViewById<View>(R.id.nav_explore).setOnClickListener {
-             Toast.makeText(this, "Keşfet Modu", Toast.LENGTH_SHORT).show()
+             // Center on My Location
+             try {
+                if (androidx.core.app.ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                        if (location != null) {
+                            updateCamera(location, 15f)
+                            Toast.makeText(this, "Konumuma dönüldü", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Konum alınıyor...", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                     Toast.makeText(this, "Konum izni gerekli", Toast.LENGTH_SHORT).show()
+                }
+             } catch (e: Exception) {
+                 e.printStackTrace()
+             }
         }
         findViewById<View>(R.id.nav_saved).setOnClickListener {
              showSavedPlacesSheet()
@@ -481,45 +506,60 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         
         // Mock Delay for calculation effect
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            progressBar.visibility = View.GONE
-            
-            // Realistic KGM 2025 Data (Offline Database Implementation)
-            // Prices are approximate for standard passenger cars (Otomobil - Sınıf 1)
-            val routes = listOf(
-                RouteOption("Kuzey Marmara Otoyolu", "42 dk", "68 km", 215.00), // High toll, fast
-                RouteOption("15 Temmuz Şehitler Köprüsü", "58 dk", "61 km", 33.00), // Bridge toll only
-                RouteOption("E-5 (Ücretsiz Rota)", "1 sa 15 dk", "58 km", 0.0), // Traffic, free
-                RouteOption("Avrasya Tüneli", "40 dk", "60 km", 112.00) // Tunnel, expensive but fast
-            )
-            
-            for (route in routes) {
-                val routeView = layoutInflater.inflate(R.layout.item_route_option, null)
-                
-                routeView.findViewById<TextView>(R.id.route_name).text = route.name
-                routeView.findViewById<TextView>(R.id.route_details).text = "${route.duration} • ${route.distance}"
-                
-                val textCost = routeView.findViewById<TextView>(R.id.route_cost)
-                if (route.cost > 0) {
-                    textCost.text = "₺${route.cost}"
-                    textCost.setTextColor(android.graphics.Color.parseColor("#E64A19")) // Orange/Red for cost
-                } else {
-                    textCost.text = "Ücretsiz"
-                    textCost.setTextColor(android.graphics.Color.parseColor("#4CAF50")) // Green for free
+            // Real Google Routes API Logic
+            if (androidx.core.app.ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                    if (location != null) {
+                        // 1. Get API Key
+                        val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                        val apiKey = appInfo.metaData?.getString("com.google.android.geo.API_KEY") ?: ""
+                        
+                        val origin = RouteLocation(LocationData(LatLngData(location.latitude, location.longitude)))
+                        val dest = RouteLocation(LocationData(LatLngData(poi.latLng.latitude, poi.latLng.longitude)))
+                        
+                        val fieldMask = "routes.duration,routes.distanceMeters,routes.travelAdvisory.tollInfo,routes.routeLabels"
+                        
+                        // Prepare Requests (Concurrent)
+                        // A. Walking (If close)
+                        val requests = ArrayList<Call<RoutesResponse>>()
+                        
+                        // B. Standard Drive (Traffic Aware + Tolls) - "En Hızlı"
+                        val driveRequest = RoutesRequest(origin, dest, "DRIVE", "TRAFFIC_AWARE", listOf("TOLLS"))
+                        
+                        // C. Toll Free Drive - "Ücretsiz"
+                        val tollFreeRequest = RoutesRequest(origin, dest, "DRIVE", "TRAFFIC_AWARE", listOf("TOLLS"), RouteModifiers(avoidTolls = true))
+
+                        // Execute Calls
+                        container.removeAllViews() // Clear text
+                        
+                        // Call 1: Standard Drive
+                        routesService.computeRoutes(apiKey, fieldMask, driveRequest).enqueue(object : retrofit2.Callback<RoutesResponse> {
+                            override fun onResponse(call: Call<RoutesResponse>, response: retrofit2.Response<RoutesResponse>) {
+                                if (response.isSuccessful && response.body()?.routes != null) {
+                                    val route = response.body()!!.routes!![0]
+                                    addRouteOptionToUI(container, route, "Araçla (En Hızlı)", poi, dialog)
+                                }
+                            }
+                            override fun onFailure(call: Call<RoutesResponse>, t: Throwable) { t.printStackTrace() }
+                        })
+                        
+                        // Call 2: No Tolls
+                        routesService.computeRoutes(apiKey, fieldMask, tollFreeRequest).enqueue(object : retrofit2.Callback<RoutesResponse> {
+                            override fun onResponse(call: Call<RoutesResponse>, response: retrofit2.Response<RoutesResponse>) {
+                                if (response.isSuccessful && response.body()?.routes != null) {
+                                    val route = response.body()!!.routes!![0]
+                                    addRouteOptionToUI(container, route, "Araçla (Ücretsiz)", poi, dialog)
+                                }
+                            }
+                            override fun onFailure(call: Call<RoutesResponse>, t: Throwable) { }
+                        })
+                        
+                    } else {
+                        Toast.makeText(this@MainActivity, "Konum alınamadı", Toast.LENGTH_SHORT).show()
+                    }
                 }
-                
-                routeView.setOnClickListener {
-                    // Launch nav
-                    val uri = android.net.Uri.parse("google.navigation:q=${poi.latLng.latitude},${poi.latLng.longitude}")
-                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
-                    intent.setPackage("com.google.android.apps.maps")
-                    if (intent.resolveActivity(packageManager) != null) startActivity(intent)
-                    dialog.dismiss()
-                }
-                
-                container.addView(routeView)
             }
-            
-        }, 1500) // 1.5s delay
+        }, 1000) // 1s delay
         
         // Yandex Navi Button
         view.findViewById<View>(R.id.btn_open_yandex).setOnClickListener {
@@ -780,6 +820,50 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 enableLocation()
             }
+        }
+    }
+    private fun addRouteOptionToUI(container: LinearLayout, route: Route, title: String, poi: com.google.android.gms.maps.model.PointOfInterest, dialog: BottomSheetDialog) {
+        val routeView = layoutInflater.inflate(R.layout.item_route_option, null)
+        
+        // Duration: "3600s" -> "60 dk"
+        val seconds = route.duration.replace("s", "").toIntOrNull() ?: 0
+        val durationText = if (seconds > 3600) "${seconds/3600} sa ${(seconds%3600)/60} dk" else "${seconds/60} dk"
+        
+        // Distance: 15400 -> "15.4 km"
+        val distanceKm = route.distanceMeters / 1000.0
+        val distanceText = String.format("%.1f km", distanceKm)
+        
+        routeView.findViewById<TextView>(R.id.route_name).text = title
+        routeView.findViewById<TextView>(R.id.route_details).text = "$durationText • $distanceText"
+        
+        val textCost = routeView.findViewById<TextView>(R.id.route_cost)
+        val price = route.travelAdvisory?.tollInfo?.estimatedPrice?.firstOrNull()
+        
+        if (price != null) {
+            val costVal = price.units.toDoubleOrNull() ?: 0.0
+            val nanos = price.nanos.toDouble() / 1000000000.0
+            val total = costVal + nanos
+            textCost.text = "₺${String.format("%.2f", total)}"
+            textCost.setTextColor(android.graphics.Color.parseColor("#E64A19"))
+        } else {
+            textCost.text = "Ücretsiz"
+            textCost.setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+        }
+        
+        routeView.setOnClickListener {
+            // Log to History
+            HistoryManager.addPlace(this@MainActivity, poi.name, poi.latLng.latitude, poi.latLng.longitude)
+            
+            // Launch nav
+            val uri = android.net.Uri.parse("google.navigation:q=${poi.latLng.latitude},${poi.latLng.longitude}")
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+            intent.setPackage("com.google.android.apps.maps")
+            if (intent.resolveActivity(packageManager) != null) startActivity(intent)
+            dialog.dismiss()
+        }
+        
+        runOnUiThread {
+            container.addView(routeView)
         }
     }
 }
