@@ -168,12 +168,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // Initialize Retrofit for OSM
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://overpass-api.de/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        speedLimitService = retrofit.create(SpeedLimitService::class.java)
+
 
         // --- BINDINGS FOR NEW UI ---
         // 1. Chips
