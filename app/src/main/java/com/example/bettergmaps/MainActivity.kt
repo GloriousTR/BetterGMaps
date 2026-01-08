@@ -44,11 +44,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+import com.google.android.libraries.places.api.net.PlacesClient
+
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+    private lateinit var placesClient: PlacesClient
 
     // UI Elements
     private lateinit var textSpeedValue: TextView
@@ -113,6 +116,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             if (!Places.isInitialized() && apiKey != null) {
                 Places.initialize(applicationContext, apiKey)
             }
+            placesClient = Places.createClient(this)
         } catch (e: Exception) {
             e.printStackTrace()
         }
