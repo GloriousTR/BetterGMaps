@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var lastApiCallTime = 0L
 
     // Network & Audio
-    private lateinit var speedLimitService: SpeedLimitService
+    // private lateinit var speedLimitService: SpeedLimitService // Removed duplicate
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
     private var isAlerting = false
 
@@ -794,19 +794,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun updateCamera(location: Location) {
+    private fun updateCamera(location: Location, zoom: Float? = null) {
         if (!isMapReady) return
         
-        // Sadece ilk konum alındığında kamerayı odakla. 
-        // Sonrasında kullanıcı özgürce gezebilmeli.
-        if (isFirstLocation) {
+        // Sadece ilk konum alındığında veya zoom manuel belirtildiğinde (örn: Konumum butonu) kamerayı odakla.
+        if (isFirstLocation || zoom != null) {
             isFirstLocation = false
             val currentLatLng = LatLng(location.latitude, location.longitude)
+            val targetZoom = zoom ?: 18f
             
             val cameraUpdate = CameraUpdateFactory.newCameraPosition(
                 com.google.android.gms.maps.model.CameraPosition.Builder()
                     .target(currentLatLng)
-                    .zoom(18f)
+                    .zoom(targetZoom)
                     .tilt(45f)
                     .bearing(location.bearing)
                     .build()
