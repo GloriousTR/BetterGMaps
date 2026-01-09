@@ -412,7 +412,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         
         // Long Click to Save
         mMap.setOnMapLongClickListener { latLng ->
-            showSaveDialog(latLng)
+            showDeepPressSheet(latLng)
         }
         
         // POI Click Listener
@@ -591,6 +591,89 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     
     // Simple Data class for Mocking
     data class RouteOption(val name: String, val duration: String, val distance: String, val cost: Double)
+
+    private fun showDeepPressSheet(latLng: LatLng) {
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_poi, null)
+        dialog.setContentView(view)
+
+        // UI References
+        val textName = view.findViewById<TextView>(R.id.poi_name)
+        val textAddress = view.findViewById<TextView>(R.id.poi_address)
+        val imgPreview = view.findViewById<android.widget.ImageView>(R.id.img_street_view_preview)
+        val btnDirections = view.findViewById<View>(R.id.btn_directions)
+        val btnSave = view.findViewById<View>(R.id.btn_save_place)
+        val btnClose = view.findViewById<View>(R.id.btn_close_poi)
+        val cardPreview = view.findViewById<View>(R.id.card_street_view_preview)
+
+        // Initial State
+        textName.text = "Seçilen Konum"
+        textAddress.text = "${String.format("%.5f", latLng.latitude)}, ${String.format("%.5f", latLng.longitude)}"
+        view.findViewById<TextView>(R.id.poi_rating).visibility = View.GONE
+        view.findViewById<TextView>(R.id.poi_open_status).visibility = View.GONE
+
+        // 1. Reverse Geocoding (Async)
+        Thread {
+            try {
+                val geocoder = android.location.Geocoder(this, java.util.Locale("tr", "TR"))
+                val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    val address = addresses[0]
+                    val featureName = address.featureName // e.g., "23" or "Google"
+                    val thoroughfare = address.thoroughfare // e.g., "1296. Sk"
+                    
+                    runOnUiThread {
+                        if (thoroughfare != null) {
+                            textName.text = "$thoroughfare No:$featureName"
+                        } else {
+                            textName.text = featureName ?: "İsimsiz Konum"
+                        }
+                        textAddress.text = address.getAddressLine(0)
+                    }
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }.start()
+
+        // 2. Load Street View Image
+        val appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+        val apiKey = appInfo.metaData?.getString("com.google.android.geo.API_KEY")
+        val imageUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${latLng.latitude},${latLng.longitude}&fov=90&heading=0&pitch=0&key=$apiKey"
+
+        Thread {
+            try {
+                val url = java.net.URL(imageUrl)
+                val bmp = android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                runOnUiThread {
+                    imgPreview.setImageBitmap(bmp)
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }.start()
+
+        // Listeners
+        cardPreview.setOnClickListener {
+             val intent = android.content.Intent(this, StreetViewActivity::class.java)
+             intent.putExtra("LAT", latLng.latitude)
+             intent.putExtra("LNG", latLng.longitude)
+             startActivity(intent)
+             dialog.dismiss()
+        }
+
+        btnDirections.setOnClickListener {
+             dialog.dismiss()
+             // Create a temporary POI object to reuse logic
+             val poi = com.google.android.gms.maps.model.PointOfInterest(latLng, "id_temp", textName.text.toString())
+             showRouteSelectionSheet(poi)
+        }
+
+        btnSave.setOnClickListener {
+             dialog.dismiss()
+             showSaveDialog(latLng) // Re-use the radio dialog for saving
+        }
+
+        btnClose.setOnClickListener { dialog.dismiss() }
+        
+        dialog.show()
+    }
 
     private fun showSaveDialog(latLng: LatLng) {
         val options = arrayOf("Ev Olarak Kaydet", "İş Olarak Kaydet", "Favorilere Ekle")

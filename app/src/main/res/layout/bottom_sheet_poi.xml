@@ -6,12 +6,54 @@
     android:padding="24dp"
     android:background="#FFFFFF">
 
+    <!-- Street View Preview -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_street_view_preview"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+        
+        <ImageView
+            android:id="@+id/img_street_view_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_launcher" 
+            android:background="#E0E0E0"/>
+            
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_rotate"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="12dp"
+            app:tint="#FFFFFF"
+            android:background="#80000000"
+            android:padding="4dp"/>
+            
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sokak Görünümü"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="12dp"
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2"/>
+    </androidx.cardview.widget.CardView>
+
     <!-- POI Name -->
     <TextView
         android:id="@+id/poi_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="İşletme Adı"
+        android:text="Seçilen Konum"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#000000"
@@ -59,6 +101,16 @@
             android:layout_weight="1"
             android:text="Yol Tarifi"
             android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"/>
+            
+        <Button
+            android:id="@+id/btn_save_place"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Kaydet"
+            android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:layout_marginEnd="8dp"/>
 
