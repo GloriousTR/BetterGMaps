@@ -6,7 +6,11 @@ import androidx.car.app.validation.HostValidator
 
 class MyCarAppService : CarAppService() {
     override fun createHostValidator(): HostValidator {
-        return HostValidator.ALLOW_ALL_HOSTS_IN_DEBUG
+        return HostValidator.Builder(applicationContext)
+            .addAllowedHost("androidx.car.app.sample")
+            .addAllowedHost("com.google.android.projection.gearhead")
+            .addAllowedHost("com.android.car")
+            .build()
     }
 
     override fun onCreateSession(): Session {
