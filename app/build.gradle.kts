@@ -12,8 +12,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = project.findProperty("ciVersionName") as? String ?: "1.1"
-
+        versionName = System.getenv("CI_VERSION_NAME") ?: "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         

@@ -70,7 +70,7 @@ jobs:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
           # CI_VERSION_NAME is now set globally in the previous step
         run: |
-          ./gradlew clean assembleDebug -PciVersionName=${{ env.CI_VERSION_NAME }} -x lint
+          ./gradlew clean assembleDebug -x lint
 
       - name: Rename APK
         run: |
