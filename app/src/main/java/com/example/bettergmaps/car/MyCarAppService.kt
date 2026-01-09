@@ -14,7 +14,7 @@ class MyCarAppService : CarAppService() {
             .build()
     }
 
-    override fun onCreateSession(sessionInfo: SessionInfo): Session {
+    override fun onCreateSession(p0: SessionInfo): Session {
         return MyCarSession()
     }
 }
