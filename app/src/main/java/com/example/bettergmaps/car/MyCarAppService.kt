@@ -7,7 +7,7 @@ import androidx.car.app.validation.HostValidator
 
 class MyCarAppService : CarAppService() {
     override fun createHostValidator(): HostValidator {
-        return androidx.car.app.validation.HostValidator.ALLOW_ALL_HOSTS_IN_DEBUG
+        return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
     }
 
     override fun onCreateSession(sessionInfo: SessionInfo): Session {
