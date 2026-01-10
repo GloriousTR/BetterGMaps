@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Rota Seçenekleri"
+            android:text="Rota Bilgisi"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#000000"/>
@@ -47,27 +47,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp"/>
-
-    <!-- External Apps -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="8dp"
-        android:gravity="center">
-        
-        <Button
-            android:id="@+id/btn_open_yandex"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Yandex Navi ile Karşılaştır"
-            android:backgroundTint="#FFCC00"
-            android:textColor="#000000"
-            android:drawableStart="@android:drawable/ic_menu_mapmode"
-            android:drawableTint="#000000"
-            android:paddingHorizontal="16dp"/>
-    </LinearLayout>
 
     <!-- Loading View (Hidden by default) -->
     <ProgressBar

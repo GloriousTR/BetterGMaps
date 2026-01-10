@@ -61,12 +61,9 @@ jobs:
               MINOR=$((RUN_NUM - OFFSET))
           fi
           
-          FINAL_VERSION="1.$MINOR"
+          FINAL_VERSION="2.0"
           echo "CI_VERSION_NAME=$FINAL_VERSION" >> $GITHUB_ENV
           echo "Computed Version: $FINAL_VERSION"
-
-      - name: Create google-services.json
-        run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
 
       - name: Build APK (Debug)
         env:

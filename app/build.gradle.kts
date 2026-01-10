@@ -12,7 +12,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = System.getenv("CI_VERSION_NAME") ?: "1.1"
+        versionName = System.getenv("CI_VERSION_NAME") ?: "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
@@ -57,7 +57,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     
     // Google Maps SDK
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    // Google Maps Navigation SDK (Includes Maps SDK)
+    implementation("com.google.android.libraries.navigation:navigation:5.5.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.libraries.places:places:3.3.0")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
