@@ -60,7 +60,9 @@ dependencies {
     // Google Maps Navigation SDK (Includes Maps SDK)
     implementation("com.google.android.libraries.navigation:navigation:5.5.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
-    implementation("com.google.android.libraries.places:places:3.3.0")
+    implementation("com.google.android.libraries.places:places:3.3.0") {
+        exclude(group = "com.google.android.gms", module = "play-services-maps")
+    }
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     
     // Network (Retrofit for OSM/Overpass)
