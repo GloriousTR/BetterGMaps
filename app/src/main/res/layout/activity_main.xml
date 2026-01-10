@@ -15,6 +15,7 @@
 
     <!-- Top Container: Search + Chips -->
     <LinearLayout
+        android:id="@+id/ll_top_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -134,14 +135,15 @@
 
     <!-- Speedometer (Positioned: Just below Layers) -->
     <LinearLayout
+        android:id="@+id/ll_speedometer_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@drawable/bg_speed_container"
         android:padding="4dp"
-        android:layout_marginTop="135dp"
-        android:layout_marginEnd="16dp"
-        android:layout_gravity="top|end"
+        android:layout_marginBottom="100dp"
+        android:layout_marginStart="16dp"
+        android:layout_gravity="bottom|start"
         android:gravity="center_vertical"
         android:elevation="6dp">
 
@@ -205,6 +207,7 @@
 
     <!-- Bottom Navigation Bar (Mock using LinearLayout for simplicity without menu resources) -->
     <LinearLayout
+        android:id="@+id/ll_bottom_nav_container"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="bottom"

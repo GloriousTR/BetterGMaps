@@ -194,9 +194,42 @@ class MainActivity : AppCompatActivity() {
             navigator.setDestination(waypoint)
             navigator.startGuidance()
             
+            // Hide UI for Navigation
+            hideUiForNavigation()
+            
             Toast.makeText(this, "Navigasyon Başlatıldı", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Navigasyon Servisi Hazır Değil", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun hideUiForNavigation() {
+        findViewById<View>(R.id.ll_top_container)?.visibility = View.GONE
+        findViewById<View>(R.id.ll_bottom_nav_container)?.visibility = View.GONE
+        findViewById<View>(R.id.btn_layers)?.visibility = View.GONE
+        // User wants custom speedometer to stay visible
+        // findViewById<View>(R.id.ll_speedometer_container)?.visibility = View.GONE
+        
+        // Note: The Navigation SDK handles the "Stop Navigation" UI, 
+        // so we rely on the user ending it there, or pressing Back to restore UI.
+    }
+    
+    // Call this if/when navigation ends (e.g. via onBackPressed override or listener)
+    private fun showUiAfterNavigation() {
+        findViewById<View>(R.id.ll_top_container)?.visibility = View.VISIBLE
+        findViewById<View>(R.id.ll_bottom_nav_container)?.visibility = View.VISIBLE
+        findViewById<View>(R.id.btn_layers)?.visibility = View.VISIBLE
+        findViewById<View>(R.id.ll_speedometer_container)?.visibility = View.VISIBLE
+    }
+     
+    override fun onBackPressed() {
+        val navigator = mNavigator
+        if (navigator != null && navigator.isGuidanceRunning) {
+             navigator.stopGuidance()
+             navigator.clearDestinations()
+             showUiAfterNavigation()
+        } else {
+             super.onBackPressed()
         }
     }
 

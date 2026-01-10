@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BetterGMaps</string>
+    <string name="navigation_welcome_title">Welcome to BetterGMaps navigation</string>
 </resources>
